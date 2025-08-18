@@ -176,25 +176,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
           </button>
         </form>
 
-        {/* Sign Up Link */}
-        <div className="mt-6 text-center">
-          <p
-            className={`text-sm ${
-              isDarkMode ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
-            Don't have an account?{" "}
-            <button
-              className={`font-medium transition-colors ${
-                isDarkMode
-                  ? "text-purple-400 hover:text-purple-300"
-                  : "text-purple-600 hover:text-purple-700"
-              }`}
-            >
-              Sign up
-            </button>
-          </p>
-        </div>
+ 
       </div>
     </div>
   );
