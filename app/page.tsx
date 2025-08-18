@@ -17,7 +17,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Here you would typically handle authentication
@@ -201,4 +200,37 @@ const LoginPage: React.FC<LoginPageProps> = ({
   );
 };
 
-export default LoginPage;
+// Add theme state and wrapper component for the page
+const Page: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  // Optionally, persist theme in localStorage
+  React.useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme) {
+      setIsDarkMode(storedTheme === "dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      localStorage.setItem("theme", newMode ? "dark" : "light");
+      return newMode;
+    });
+  };
+
+  const handleLogin = () => {
+    // Implement login logic or navigation here
+  };
+
+  return (
+    <LoginPage
+      isDarkMode={isDarkMode}
+      toggleTheme={toggleTheme}
+      onLogin={handleLogin}
+    />
+  );
+};
+
+export default Page;
