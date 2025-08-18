@@ -73,8 +73,12 @@ const ResourceManagement: React.FC = () => {
       const data = await res.json();
       toast.success(`Success: ${data.message} (Chunks: ${data.chunks_processed})`, { id: toastId });
       setPdfFile(null);
-    } catch (err: any) {
-      toast.error(err.message || "Upload failed", { id: toastId });
+    } catch (err: unknown) {
+      let message = "Upload failed";
+      if (err && typeof err === "object" && "message" in err && typeof (err as { message?: unknown }).message === "string") {
+        message = (err as { message: string }).message;
+      }
+      toast.error(message, { id: toastId });
     } finally {
       setUploading(false);
     }

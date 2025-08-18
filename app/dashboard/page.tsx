@@ -438,7 +438,7 @@ const Dashboard: React.FC = () => {
                       isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    Today's Questions
+                    Top Questions
                   </h3>
                   {/* <div className="flex flex-col gap-2 sm:flex-row sm:space-x-4">
                     <select className={`w-full sm:w-auto px-3 py-1 rounded-lg text-sm transition-all focus:outline-none ${
