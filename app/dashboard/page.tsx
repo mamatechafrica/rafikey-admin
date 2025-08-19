@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTheme } from "@/components/ThemeContext";
 import {
   BarChart3,
   Clock,
@@ -32,7 +33,7 @@ interface AlertItemProps {
 }
 
 const Dashboard: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("Rafikey");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -145,9 +146,7 @@ const Dashboard: React.FC = () => {
       });
   }, []);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  // toggleTheme is now provided by useTheme
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);

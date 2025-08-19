@@ -100,6 +100,28 @@ const Sidebar: React.FC<SidebarProps> = ({
             ></div>
           </a>
         </nav>
+        {/* Analysis Link */}
+        <a
+          href="/dashboard/analysis"
+          className={`flex items-center px-4 py-3 rounded-xl transition-all duration-300 hover:bg-opacity-10 group
+            ${isSidebarCollapsed ? "justify-center" : "space-x-3"}
+            ${isDarkMode
+              ? "text-gray-400 hover:bg-gray-700/30 hover:text-white"
+              : "text-gray-600 hover:bg-gray-900 hover:text-gray-900"}
+          `}
+          tabIndex={0}
+        >
+          <span className="flex items-center justify-center w-6 h-6">
+            <Activity className="w-5 h-5" />
+          </span>
+          <span
+            className={`font-medium transition-all duration-300
+              ${isSidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"}
+            `}
+          >
+            Analysis
+          </span>
+        </a>
       </div>
     </div>
   );
