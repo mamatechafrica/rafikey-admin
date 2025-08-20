@@ -13,14 +13,45 @@ const LoginPage: React.FC<LoginPageProps> = ({
   toggleTheme,
   onLogin,
 }) => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically handle authentication
-    onLogin();
+    setError(null);
+    setLoading(true);
+    try {
+      const formData = new URLSearchParams();
+      formData.append("username", username);
+      formData.append("password", password);
+
+      const res = await fetch("https://rafikeybot.onrender.com/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.detail || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      // Store token in cookie for middleware authentication
+      document.cookie = `admin_token=${data.access_token}; path=/; SameSite=Lax`;
+      setLoading(false);
+      onLogin();
+    } catch (err) {
+      setError("Network error");
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,7 +130,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 isDarkMode ? "text-gray-300" : "text-gray-700"
               }`}
             >
-              Email Address
+              Username
             </label>
             <div className="relative">
               <Mail
@@ -108,10 +139,10 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 }`}
               />
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
                 className={`w-full pl-10 pr-4 py-3 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   isDarkMode
                     ? "bg-gray-700/50 border border-gray-600/50 text-white placeholder-gray-400"
@@ -168,11 +199,15 @@ const LoginPage: React.FC<LoginPageProps> = ({
           </div>
 
           {/* Sign In Button */}
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
           <button
             type="submit"
             className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl transition-all hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            disabled={loading}
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
@@ -183,8 +218,11 @@ const LoginPage: React.FC<LoginPageProps> = ({
 };
 
 // Add theme state and wrapper component for the page
+import { useRouter } from "next/navigation";
+
 const Page: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const router = useRouter();
 
   // Optionally, persist theme in localStorage
   React.useEffect(() => {
@@ -203,7 +241,7 @@ const Page: React.FC = () => {
   };
 
   const handleLogin = () => {
-    // Implement login logic or navigation here
+    router.push("/dashboard");
   };
 
   return (

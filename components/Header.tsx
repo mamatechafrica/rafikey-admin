@@ -16,16 +16,43 @@ interface HeaderProps {
   toggleSidebar: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  isDarkMode, 
-  isSidebarCollapsed, 
-  toggleTheme, 
-  toggleSidebar 
+import { useEffect, useState } from "react";
+
+function decodeJWT(token: string) {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decodeURIComponent(escape(decoded)));
+  } catch {
+    return null;
+  }
+}
+
+const Header: React.FC<HeaderProps> = ({
+  isDarkMode,
+  isSidebarCollapsed,
+  toggleTheme,
+  toggleSidebar,
 }) => {
+  const [user, setUser] = useState<{ sub?: string; username?: string; email?: string; is_admin?: boolean } | null>(null);
+
+  useEffect(() => {
+    // Try to get token from cookie
+    let token: string | null = null;
+    if (typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|; )admin_token=([^;]*)/);
+      token = match ? decodeURIComponent(match[1]) : null;
+    }
+    if (token) {
+      const decoded = decodeJWT(token);
+      setUser(decoded);
+    }
+  }, []);
+
   return (
     <header className={`backdrop-blur-md border-b sticky top-0 z-10 ${
-      isDarkMode 
-        ? 'bg-gray-800/90 border-gray-700/50' 
+      isDarkMode
+        ? 'bg-gray-800/90 border-gray-700/50'
         : 'bg-white/80 border-black/10'
     }`}>
       <div className="flex items-center justify-between px-4 py-2 sm:px-8 sm:py-4">
@@ -106,16 +133,32 @@ const Header: React.FC<HeaderProps> = ({
               <User className="w-4 h-4 text-white" />
             </div>
             <div className="hidden sm:flex flex-col ml-2">
-              <div className="text-sm font-medium">Alex Kimani</div>
+              <div className="text-sm font-medium">
+                {user?.sub || user?.username || "Admin"}
+              </div>
               <div
                 className={`text-xs ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Admin
+                {user?.email || "Admin"}
               </div>
             </div>
             <ChevronDown className="w-4 h-4 hidden sm:inline ml-2" />
+            <button
+              onClick={() => {
+                // Remove the admin_token cookie
+                document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                window.location.href = "/";
+              }}
+              className={`ml-2 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                isDarkMode
+                  ? "bg-gray-700/50 hover:bg-gray-600/50 text-white"
+                  : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+              }`}
+            >
+              Logout
+            </button>
           </div>
         </div>
       </div>
