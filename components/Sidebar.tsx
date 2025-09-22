@@ -3,7 +3,8 @@ import {
   Activity, 
   Grid3X3, 
   Users, 
-  ChevronLeft 
+  ChevronLeft,
+  Award
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -142,6 +143,28 @@ const Sidebar: React.FC<SidebarProps> = ({
             `}
           >
             Admins
+          </span>
+        </a>
+        {/* Gamification Link */}
+        <a
+          href="/dashboard/gamification"
+          className={`flex items-center px-4 py-3 rounded-xl transition-all duration-300 hover:bg-opacity-10 group
+            ${isSidebarCollapsed ? "justify-center" : "space-x-3"}
+            ${isDarkMode
+              ? "text-yellow-400 hover:bg-gray-700/30 hover:text-yellow-300"
+              : "text-yellow-700 hover:bg-yellow-100 hover:text-yellow-900"}
+          `}
+          tabIndex={0}
+        >
+          <span className="flex items-center justify-center w-6 h-6">
+            <Award className="w-5 h-5" />
+          </span>
+          <span
+            className={`font-medium transition-all duration-300
+              ${isSidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"}
+            `}
+          >
+            Gamification
           </span>
         </a>
       </div>
