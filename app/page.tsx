@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, Activity, Sun, Moon } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Sun, Moon } from "lucide-react";
+import Image from "next/image";
 
 interface LoginPageProps {
   isDarkMode: boolean;
@@ -103,7 +104,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
         {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
-            <Activity className="w-8 h-8 text-white" />
+            {/* <Activity className="w-8 h-8 text-white" /> */}
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8 text-white"
+            />
           </div>
           <h1
             className={`text-2xl font-bold mb-2 ${
