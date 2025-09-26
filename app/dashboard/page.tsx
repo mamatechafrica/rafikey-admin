@@ -377,7 +377,7 @@ const Dashboard: React.FC = () => {
               >
                 Overview
               </h2>
-              <select
+              {/* <select
                 className={`w-full sm:w-auto mt-2 sm:mt-0 px-4 py-2 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   isDarkMode
                     ? "bg-gray-700/50 border border-gray-600/50 text-white"
@@ -387,7 +387,7 @@ const Dashboard: React.FC = () => {
                 <option>Last 7 days</option>
                 <option>Last 30 days</option>
                 <option>Last 90 days</option>
-              </select>
+              </select> */}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
