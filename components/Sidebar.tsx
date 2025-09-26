@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   Award
 } from 'lucide-react';
+import Image from 'next/image';
+
 
 interface SidebarProps {
   isDarkMode: boolean;
@@ -31,7 +33,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           isSidebarCollapsed ? 'justify-center space-x-0' : 'space-x-3'
         }`}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
-            <Activity className="w-6 h-6 text-white" />
+            {/* <Activity className="w-6 h-6 text-white" /> */}
+            <Image src="/logo.png" alt="Logo" width={48} height={48} />
           </div>
           <span className={`text-xl font-bold transition-all duration-300 ${
             isSidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'

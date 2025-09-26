@@ -108,8 +108,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Image
               src="/logo.png"
               alt="Logo"
-              width={32}
-              height={32}
+              width={48}
+              height={48}
               className="w-8 h-8 text-white"
             />
           </div>
