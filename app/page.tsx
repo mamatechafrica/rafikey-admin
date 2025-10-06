@@ -105,13 +105,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
             {/* <Activity className="w-8 h-8 text-white" /> */}
-            <Image
-              src="/Rafikey.png.png"
-              alt="Logo"
-              width={48}
-              height={48}
-              className="w-8 h-8 text-white"
-            />
+            <Image src="/logo.png" alt="Logo" width={48} height={48} />
           </div>
           <h1
             className={`text-2xl font-bold mb-2 ${
@@ -218,8 +212,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
             {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
-
- 
       </div>
     </div>
   );
