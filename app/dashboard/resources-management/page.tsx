@@ -12,7 +12,8 @@ const ResourceManagement: React.FC = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-
+  const [progress, setProgress] = useState(0);
+  
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,23 +57,50 @@ const ResourceManagement: React.FC = () => {
       return;
     }
     setUploading(true);
+    setProgress(0);
     const toastId = toast.loading("Uploading PDF...");
     try {
       const formData = new FormData();
       formData.append("file", pdfFile);
 
-      const res = await fetch("https://rafikeybot.onrender.com/pdf/upload", {
-        method: "POST",
-        body: formData,
-      });
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://rafikeybot.onrender.com/pdf/upload", true);
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Upload failed");
-      }
-      const data = await res.json();
-      toast.success(`Success: ${data.message} (Chunks: ${data.chunks_processed})`, { id: toastId });
-      setPdfFile(null);
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            setProgress(percent);
+          }
+        };
+
+        xhr.onload = async () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            let data;
+            try {
+              data = JSON.parse(xhr.responseText);
+            } catch {
+              data = { message: "Upload complete", chunks_processed: "?" };
+            }
+            toast.success(`Success: ${data.message} (Chunks: ${data.chunks_processed})`, { id: toastId });
+            setPdfFile(null);
+            resolve();
+          } else {
+            let errMsg = "Upload failed";
+            try {
+              const err = JSON.parse(xhr.responseText);
+              errMsg = err.detail || errMsg;
+            } catch {}
+            reject(new Error(errMsg));
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error("Network error"));
+        };
+
+        xhr.send(formData);
+      });
     } catch (err: unknown) {
       let message = "Upload failed";
       if (err && typeof err === "object" && "message" in err && typeof (err as { message?: unknown }).message === "string") {
@@ -81,6 +109,7 @@ const ResourceManagement: React.FC = () => {
       toast.error(message, { id: toastId });
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
@@ -195,6 +224,19 @@ const ResourceManagement: React.FC = () => {
                     }`}
                   >
                     Selected: {pdfFile.name}
+                  </div>
+                )}
+                {uploading && (
+                  <div className="w-full flex flex-col items-center mb-2">
+                    <div className="w-64 h-3 bg-gray-300 rounded-full overflow-hidden mb-1">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-200"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
+                    <span className={`text-xs font-medium ${isDarkMode ? "text-gray-200" : "text-gray-700"}`}>
+                      {progress}%
+                    </span>
                   </div>
                 )}
                 <button

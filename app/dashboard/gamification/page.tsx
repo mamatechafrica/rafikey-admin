@@ -44,6 +44,8 @@ const GamificationQuizAdmin: React.FC = () => {
   const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [loadingQuizzes, setLoadingQuizzes] = useState(true);
   const [quizListError, setQuizListError] = useState<string | null>(null);
+  const [deletingQuizId, setDeletingQuizId] = useState<number | null>(null);
+  const [quizToDelete, setQuizToDelete] = useState<QuizSummary | null>(null);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -87,6 +89,37 @@ const GamificationQuizAdmin: React.FC = () => {
   useEffect(() => {
     fetchQuizzes();
   }, []);
+
+  // Delete quiz logic
+  const handleDeleteQuiz = async (quizId: number) => {
+    setDeletingQuizId(quizId);
+    const toastId = toast.loading("Deleting quiz...");
+    try {
+      const res = await fetch(`https://rafikeybot.onrender.com/gamification/quizzes/${quizId}`, {
+        method: "DELETE",
+      });
+      if (res.status === 204) {
+        toast.success("Quiz deleted successfully!", { id: toastId });
+        setQuizzes((prev) => prev.filter((q) => q.id !== quizId));
+      } else {
+        let errMsg = "Failed to delete quiz";
+        try {
+          const err = await res.json();
+          errMsg = err.detail || errMsg;
+        } catch {}
+        toast.error("Error: " + errMsg, { id: toastId });
+      }
+    } catch (err: unknown) {
+      let message = "Network error";
+      if (err instanceof Error) {
+        message = err.message;
+      }
+      toast.error("Network error: " + message, { id: toastId });
+    } finally {
+      setDeletingQuizId(null);
+      setQuizToDelete(null);
+    }
+  };
 
   // Quiz logic
   const addQuestion = () => {
@@ -547,22 +580,35 @@ const GamificationQuizAdmin: React.FC = () => {
                         <th className="px-4 py-2 font-semibold">ID</th>
                         <th className="px-4 py-2 font-semibold">Title</th>
                         <th className="px-4 py-2 font-semibold">Description</th>
+                        <th className="px-4 py-2 font-semibold">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {quizzes.map((quiz) => (
                         <tr
                           key={quiz.id}
-                          className={`border-t cursor-pointer hover:bg-purple-100/30 ${
+                          className={`border-t hover:bg-purple-100/30 ${
                             isDarkMode
                               ? "border-gray-700 hover:bg-purple-900/30"
                               : "border-gray-200"
                           }`}
-                          onClick={() => openQuizModal(quiz)}
                         >
-                          <td className="px-4 py-2">{quiz.id}</td>
-                          <td className="px-4 py-2">{quiz.title}</td>
-                          <td className="px-4 py-2">{quiz.description}</td>
+                          <td className="px-4 py-2 cursor-pointer" onClick={() => openQuizModal(quiz)}>{quiz.id}</td>
+                          <td className="px-4 py-2 cursor-pointer" onClick={() => openQuizModal(quiz)}>{quiz.title}</td>
+                          <td className="px-4 py-2 cursor-pointer" onClick={() => openQuizModal(quiz)}>{quiz.description}</td>
+                          <td className="px-4 py-2">
+                            <button
+                              className={`px-4 py-1 rounded-lg font-semibold text-white transition ${
+                                deletingQuizId === quiz.id
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "bg-red-600 hover:bg-red-700"
+                              }`}
+                              onClick={() => setQuizToDelete(quiz)}
+                              disabled={deletingQuizId === quiz.id}
+                            >
+                              {deletingQuizId === quiz.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -573,6 +619,55 @@ const GamificationQuizAdmin: React.FC = () => {
           </div>
           {/* Modal for questions */}
           {Modal}
+          {/* Modal for quiz deletion */}
+          {isClient && quizToDelete && ReactDOM.createPortal(
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+              <div
+                className={`w-full max-w-md rounded-2xl shadow-2xl border p-8 relative ${
+                  isDarkMode
+                    ? "bg-gray-900 border-gray-700 text-gray-100"
+                    : "bg-white border-gray-200 text-gray-900"
+                }`}
+              >
+                <button
+                  className="absolute top-3 right-3 text-xl font-bold text-gray-400 hover:text-red-500"
+                  onClick={() => setQuizToDelete(null)}
+                  aria-label="Close"
+                  disabled={deletingQuizId === quizToDelete.id}
+                >
+                  &times;
+                </button>
+                <h3 className="text-2xl font-bold mb-4">
+                  Delete Quiz
+                </h3>
+                <p className="mb-6">
+                  Are you sure you want to delete the quiz <span className="font-semibold">{quizToDelete.title}</span>?<br />
+                  This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-4">
+                  <button
+                    className="px-4 py-2 rounded-lg font-semibold bg-gray-400 text-white hover:bg-gray-500 transition"
+                    onClick={() => setQuizToDelete(null)}
+                    disabled={deletingQuizId === quizToDelete.id}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-lg font-semibold text-white transition ${
+                      deletingQuizId === quizToDelete.id
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    }`}
+                    onClick={() => handleDeleteQuiz(quizToDelete.id)}
+                    disabled={deletingQuizId === quizToDelete.id}
+                  >
+                    {deletingQuizId === quizToDelete.id ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
         </main>
       </div>
     </div>
