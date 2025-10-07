@@ -1,11 +1,9 @@
 import React from 'react';
 import { 
-  Search, 
-  Bell, 
+
   User, 
   Moon,
   Sun,
-  ChevronDown,
   Menu
 } from 'lucide-react';
 
@@ -77,8 +75,8 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
-          {/* Search bar hidden on mobile */}
-          <div className="relative hidden md:block">
+     
+          {/* <div className="relative hidden md:block">
             <Search
               className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
                 isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -93,9 +91,9 @@ const Header: React.FC<HeaderProps> = ({
                   : "bg-white border border-gray-200 text-gray-900 placeholder-gray-500"
               }`}
             />
-          </div>
+          </div> */}
 
-          <button
+          {/* <button
             onClick={toggleTheme}
             className={`p-2 rounded-xl transition-all hover:scale-110 ${
               isDarkMode
@@ -108,18 +106,7 @@ const Header: React.FC<HeaderProps> = ({
             ) : (
               <Moon className="w-5 h-5" />
             )}
-          </button>
-
-          <button
-            className={`relative p-2 rounded-xl transition-all hover:scale-110 ${
-              isDarkMode
-                ? "bg-gray-700/50 hover:bg-gray-600/50 text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-            }`}
-          >
-            <Bell className="w-5 h-5" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-          </button>
+          </button> */}
 
           {/* User info hidden on mobile, show only avatar */}
           <div
@@ -144,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({
                 {user?.email || "Admin"}
               </div>
             </div>
-            <ChevronDown className="w-4 h-4 hidden sm:inline ml-2" />
+        
             <button
               onClick={() => {
                 // Remove the admin_token cookie

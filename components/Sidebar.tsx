@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             href="/dashboard"
             className={`flex items-center px-4 py-3 rounded-xl transition-all duration-300 group
               ${isSidebarCollapsed ? "justify-center" : "space-x-3"}
-              ${isDarkMode ? "bg-gray-700/50 text-white" : "bg-black/10 text-gray-900"}
+              ${isDarkMode ? "bg-gray-700/50 text-white" : "text-gray-900"}
             `}
             tabIndex={0}
           >
@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               ${isSidebarCollapsed ? "justify-center" : "space-x-3"}
               ${isDarkMode
                 ? "text-gray-400 hover:bg-gray-700/30 hover:text-white"
-                : "text-gray-600 hover:bg-gray-900 hover:text-gray-900"}
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"}
             `}
             tabIndex={0}
           >
@@ -92,7 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </span>
             <span
               className={`font-medium transition-all duration-300
-                ${isSidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"}
+                ${isSidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "w-auto"}
               `}
             >
               Resource mgmt
@@ -111,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             ${isSidebarCollapsed ? "justify-center" : "space-x-3"}
             ${isDarkMode
               ? "text-gray-400 hover:bg-gray-700/30 hover:text-white"
-              : "text-gray-600 hover:bg-gray-900 hover:text-gray-900"}
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"}
           `}
           tabIndex={0}
         >
@@ -133,7 +133,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             ${isSidebarCollapsed ? "justify-center" : "space-x-3"}
             ${isDarkMode
               ? "text-gray-400 hover:bg-gray-700/30 hover:text-white"
-              : "text-gray-600 hover:bg-gray-900 hover:text-gray-900"}
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"}
           `}
           tabIndex={0}
         >

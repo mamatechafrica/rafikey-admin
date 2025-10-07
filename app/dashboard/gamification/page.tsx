@@ -577,10 +577,10 @@ const GamificationQuizAdmin: React.FC = () => {
                   <table className="w-full text-left">
                     <thead>
                       <tr>
-                        <th className="px-4 py-2 font-semibold">ID</th>
-                        <th className="px-4 py-2 font-semibold">Title</th>
-                        <th className="px-4 py-2 font-semibold">Description</th>
-                        <th className="px-4 py-2 font-semibold">Actions</th>
+                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 text-gray-800 ">ID</th>
+                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-200">Title</th>
+                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-200">Description</th>
+                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-200">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -593,9 +593,9 @@ const GamificationQuizAdmin: React.FC = () => {
                               : "border-gray-200"
                           }`}
                         >
-                          <td className="px-4 py-2 cursor-pointer" onClick={() => openQuizModal(quiz)}>{quiz.id}</td>
-                          <td className="px-4 py-2 cursor-pointer" onClick={() => openQuizModal(quiz)}>{quiz.title}</td>
-                          <td className="px-4 py-2 cursor-pointer" onClick={() => openQuizModal(quiz)}>{quiz.description}</td>
+                          <td className="px-4 py-2 cursor-pointer text-gray-800 dark:text-gray-200" onClick={() => openQuizModal(quiz)}>{quiz.id}</td>
+                          <td className="px-4 py-2 cursor-pointer text-gray-800 dark:text-gray-200" onClick={() => openQuizModal(quiz)}>{quiz.title}</td>
+                          <td className="px-4 py-2 cursor-pointer text-gray-800 dark:text-gray-200" onClick={() => openQuizModal(quiz)}>{quiz.description}</td>
                           <td className="px-4 py-2">
                             <button
                               className={`px-4 py-1 rounded-lg font-semibold text-white transition ${
