@@ -93,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({
             />
           </div> */}
 
-          {/* <button
+          <button
             onClick={toggleTheme}
             className={`p-2 rounded-xl transition-all hover:scale-110 ${
               isDarkMode
@@ -106,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({
             ) : (
               <Moon className="w-5 h-5" />
             )}
-          </button> */}
+          </button>
 
           {/* User info hidden on mobile, show only avatar */}
           <div
