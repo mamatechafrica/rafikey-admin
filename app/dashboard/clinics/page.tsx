@@ -60,11 +60,7 @@ const ClinicsPage: React.FC = () => {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    fetchClinics();
-  }, [page, limit, country]);
-
-  const fetchClinics = async () => {
+  const fetchClinics = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -80,13 +76,18 @@ const ClinicsPage: React.FC = () => {
       if (!res.ok) throw new Error("Failed to fetch clinics");
       const data = await res.json();
       setClinics(data);
-    } catch (err: any) {
-      setError(err.message || "Unknown error");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(message);
       toast.error("Failed to fetch clinics");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, country]);
+
+  useEffect(() => {
+    fetchClinics();
+  }, [fetchClinics]);
 
   const resetForm = () => {
     setForm({
@@ -122,8 +123,9 @@ const ClinicsPage: React.FC = () => {
       setShowCreateModal(false);
       resetForm();
       fetchClinics();
-    } catch (err: any) {
-      toast.error("Error: " + err.message, { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast.error("Error: " + message, { id: toastId });
     } finally {
       setFormLoading(false);
     }
@@ -160,8 +162,9 @@ const ClinicsPage: React.FC = () => {
       setShowEditModal(false);
       setEditForm(null);
       fetchClinics();
-    } catch (err: any) {
-      toast.error("Error: " + err.message, { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast.error("Error: " + message, { id: toastId });
     } finally {
       setEditLoading(false);
     }
@@ -183,8 +186,9 @@ const ClinicsPage: React.FC = () => {
       setShowDeleteModal(false);
       setClinicToDelete(null);
       fetchClinics();
-    } catch (err: any) {
-      toast.error("Error: " + err.message, { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast.error("Error: " + message, { id: toastId });
     } finally {
       setDeleteLoading(false);
     }
