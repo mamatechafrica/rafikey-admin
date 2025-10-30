@@ -175,7 +175,7 @@ const ClinicsPage: React.FC = () => {
     setDeleteLoading(true);
     const toastId = toast.loading("Deleting clinic...");
     try {
-      const res = await fetch(`https://rafikeybot.onrender.com/clinics/clinics/${clinicToDelete.id}`, {
+      const res = await fetch(`https://rafikey-backend.onrender.com/clinics/clinics/${clinicToDelete.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
