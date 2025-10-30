@@ -69,7 +69,7 @@ const GamificationQuizAdmin: React.FC = () => {
     setLoadingQuizzes(true);
     setQuizListError(null);
     try {
-      const res = await fetch("https://rafikeybot.onrender.com/gamification/quizzes");
+      const res = await fetch("https://rafikey-backend.onrender.com/gamification/quizzes");
       if (!res.ok) {
         throw new Error("Failed to fetch quizzes");
       }
@@ -95,7 +95,7 @@ const GamificationQuizAdmin: React.FC = () => {
     setDeletingQuizId(quizId);
     const toastId = toast.loading("Deleting quiz...");
     try {
-      const res = await fetch(`https://rafikeybot.onrender.com/gamification/quizzes/${quizId}`, {
+      const res = await fetch(`https://rafikey-backend.onrender.com/gamification/quizzes/${quizId}`, {
         method: "DELETE",
       });
       if (res.status === 204) {
@@ -236,7 +236,7 @@ const GamificationQuizAdmin: React.FC = () => {
     };
     const toastId = toast.loading("Submitting quiz...");
     try {
-      const res = await fetch("https://rafikeybot.onrender.com/gamification/admin/quizzes", {
+      const res = await fetch("https://rafikey-backend.onrender.com/gamification/admin/quizzes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -279,7 +279,7 @@ const GamificationQuizAdmin: React.FC = () => {
     setQuestionsError(null);
     try {
       // Assuming endpoint: /gamification/quizzes/{quiz_id}/questions returns all questions for a quiz
-      const res = await fetch(`https://rafikeybot.onrender.com/gamification/quizzes/${quiz.id}/questions`);
+      const res = await fetch(`https://rafikey-backend.onrender.com/gamification/quizzes/${quiz.id}/questions`);
       if (!res.ok) {
         throw new Error("Failed to fetch questions");
       }

@@ -296,10 +296,10 @@ const ClinicsPage: React.FC = () => {
                   <label className="block text-sm font-semibold mb-1">Website</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={editForm.website || ""} onChange={e => setEditForm(f => f ? { ...f, website: e.target.value } : f)} />
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm font-semibold mb-1">Source Country</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={editForm.source_country || ""} onChange={e => setEditForm(f => f ? { ...f, source_country: e.target.value } : f)} />
-                </div>
+                </div> */}
                 <div>
                   <label className="block text-sm font-semibold mb-1">Latitude</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} type="number" step="any" value={editForm.latitude ?? ""} onChange={e => setEditForm(f => f ? { ...f, latitude: e.target.value ? parseFloat(e.target.value) : undefined } : f)} />
@@ -387,7 +387,7 @@ const ClinicsPage: React.FC = () => {
                         <th className="px-4 py-3 font-semibold">Clinic Name</th>
                         <th className="px-4 py-3 font-semibold">Location</th>
                         <th className="px-4 py-3 font-semibold">Phone</th>
-                        <th className="px-4 py-3 font-semibold">Country</th>
+                        {/* <th className="px-4 py-3 font-semibold">Country</th> */}
                         <th className="px-4 py-3 font-semibold">Actions</th>
                       </tr>
                     </thead>
@@ -398,7 +398,7 @@ const ClinicsPage: React.FC = () => {
                           <td className="px-4 py-3 font-medium">{clinic.clinic_name || "N/A"}</td>
                           <td className="px-4 py-3">{clinic.location || "N/A"}</td>
                           <td className="px-4 py-3">{clinic.phone || "N/A"}</td>
-                          <td className="px-4 py-3">{clinic.source_country || "N/A"}</td>
+                          {/* <td className="px-4 py-3">{clinic.source_country || "N/A"}</td> */}
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
                               <button className="px-3 py-1 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition" onClick={() => openEditModal(clinic)}>Edit</button>

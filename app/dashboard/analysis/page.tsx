@@ -89,7 +89,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch USS
   React.useEffect(() => {
     setUssLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/user_satisfaction_score")
+    fetch("https://rafikey-backend.onrender.com/metrics/user_satisfaction_score")
       .then(res => res.json())
       .then(data => setUss(data))
       .catch(() => setUssError("Failed to fetch USS"))
@@ -99,7 +99,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Time Spent Per Session
   React.useEffect(() => {
     setTimeSpentLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/time_spent_per_session")
+    fetch("https://rafikey-backend.onrender.com/metrics/time_spent_per_session")
       .then(res => res.json())
       .then(data => setTimeSpent(data))
       .catch(() => setTimeSpentError("Failed to fetch Time Spent"))
@@ -109,7 +109,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Engagement Rate
   React.useEffect(() => {
     setEngagementRateLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/engagement_rate")
+    fetch("https://rafikey-backend.onrender.com/metrics/engagement_rate")
       .then(res => res.json())
       .then(data => setEngagementRate(data))
       .catch(() => setEngagementRateError("Failed to fetch Engagement Rate"))
@@ -119,7 +119,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Message Completion Rate
   React.useEffect(() => {
     setMessageCompletionLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/message_completion_rate")
+    fetch("https://rafikey-backend.onrender.com/metrics/message_completion_rate")
       .then(res => res.json())
       .then(data => setMessageCompletion(data))
       .catch(() => setMessageCompletionError("Failed to fetch Message Completion Rate"))
@@ -129,7 +129,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch User Retention Rate
   React.useEffect(() => {
     setRetentionLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/user_retention_rate")
+    fetch("https://rafikey-backend.onrender.com/metrics/user_retention_rate")
       .then(res => res.json())
       .then(data => setRetention(data))
       .catch(() => setRetentionError("Failed to fetch User Retention Rate"))
@@ -139,7 +139,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Active Monthly Users
   React.useEffect(() => {
     setActiveMonthlyUsersLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/active_monthly_users")
+    fetch("https://rafikey-backend.onrender.com/metrics/active_monthly_users")
       .then(res => res.json())
       .then(data => setActiveMonthlyUsers(data))
       .catch(() => setActiveMonthlyUsersError("Failed to fetch Active Monthly Users"))
@@ -149,7 +149,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Referral Rate
   React.useEffect(() => {
     setReferralRateLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/referral_rate")
+    fetch("https://rafikey-backend.onrender.com/metrics/referral_rate")
       .then(res => res.json())
       .then(data => setReferralRate(data))
       .catch(() => setReferralRateError("Failed to fetch Referral Rate"))
@@ -159,7 +159,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Drop-off Rate
   React.useEffect(() => {
     setDropOffRateLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/drop_off_rate")
+    fetch("https://rafikey-backend.onrender.com/metrics/drop_off_rate")
       .then(res => res.json())
       .then(data => setDropOffRate(data))
       .catch(() => setDropOffRateError("Failed to fetch Drop-off Rate"))
@@ -169,7 +169,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Service Finder Usage Rate
   React.useEffect(() => {
     setServiceFinderUsageLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/service_finder_usage_rate")
+    fetch("https://rafikey-backend.onrender.com/metrics/service_finder_usage_rate")
       .then(res => res.json())
       .then(data => setServiceFinderUsage(data))
       .catch(() => setServiceFinderUsageError("Failed to fetch Service Finder Usage Rate"))
@@ -179,7 +179,7 @@ const AnalysisPage: React.FC = () => {
   // Fetch Demographic Reach
   React.useEffect(() => {
     setDemographicReachLoading(true);
-    fetch("https://rafikeybot.onrender.com/metrics/demographic_reach")
+    fetch("https://rafikey-backend.onrender.com/metrics/demographic_reach")
       .then(res => res.json())
       .then(data => setDemographicReach(data))
       .catch(() => setDemographicReachError("Failed to fetch Demographic Reach"))

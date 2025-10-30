@@ -32,7 +32,7 @@ const AdminsPage: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch("https://rafikeybot.onrender.com/admin/list")
+    fetch("https://rafikey-backend.onrender.com/admin/list")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch admins");
         return res.json();
@@ -49,7 +49,7 @@ const AdminsPage: React.FC = () => {
     setAddSuccess(null);
     setAddLoading(true);
     try {
-      const res = await fetch("https://rafikeybot.onrender.com/admin/register", {
+      const res = await fetch("https://rafikey-backend.onrender.com/admin/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

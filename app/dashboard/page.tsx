@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     setSentimentLoading(true);
     setSentimentError(null);
-    fetch("https://rafikeybot.onrender.com/chatbot/sentiment_analysis")
+    fetch("https://rafikey-backend.onrender.com/chatbot/sentiment_analysis")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch sentiment analysis");
         return res.json();
@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     // Fetch the count of unique thread IDs
-    fetch("https://rafikeybot.onrender.com/chatbot/unique_thread_ids/count")
+    fetch("https://rafikey-backend.onrender.com/chatbot/unique_thread_ids/count")
       .then((res) => res.json())
       .then((data) => {
         if (typeof data.count === "number") {
@@ -102,7 +102,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     setActiveUsersTodayLoading(true);
     setActiveUsersTodayError(null);
-    fetch("https://rafikeybot.onrender.com/chatbot/active_users_today")
+    fetch("https://rafikey-backend.onrender.com/chatbot/active_users_today")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch active users today");
         return res.json();
@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     setTopicsLoading(true);
     setTopicsError(null);
-    fetch("https://rafikeybot.onrender.com/chatbot/topics")
+    fetch("https://rafikey-backend.onrender.com/chatbot/topics")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch topics");
         return res.json();
@@ -698,7 +698,7 @@ const Dashboard: React.FC = () => {
 
 /** QuestionsList component and questions fetch logic **/
 import { useState as useStateQ, useEffect as useEffectQ } from "react";
-const QUESTIONS_ENDPOINT = "https://rafikeybot.onrender.com/chatbot/questions";
+const QUESTIONS_ENDPOINT = "https://rafikey-backend.onrender.com/chatbot/questions";
 
 const QuestionsList: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   const [questions, setQuestions] = useStateQ<

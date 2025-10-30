@@ -70,7 +70,7 @@ const ResourceManagement: React.FC = () => {
 
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "https://rafikeybot.onrender.com/pdf/upload", true);
+        xhr.open("POST", "https://rafikey-backend.onrender.com/pdf/upload", true);
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
