@@ -29,7 +29,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
       formData.append("username", username);
       formData.append("password", password);
 
-      const res = await fetch("https://rafikeybot.onrender.com/admin/login", {
+      const res = await fetch("https://rafikey-backend.onrender.com/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
