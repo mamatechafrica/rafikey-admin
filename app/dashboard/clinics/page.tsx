@@ -72,7 +72,7 @@ const ClinicsPage: React.FC = () => {
       if (country) {
         params.append("country", country);
       }
-      const res = await fetch(`https://rafikeybot.onrender.com/clinics/clinics?${params}`);
+      const res = await fetch(`https://rafikey-backend.onrender.com/clinics/clinics?${params}`);
       if (!res.ok) throw new Error("Failed to fetch clinics");
       const data = await res.json();
       setClinics(data);
@@ -110,7 +110,7 @@ const ClinicsPage: React.FC = () => {
     setFormLoading(true);
     const toastId = toast.loading("Creating clinic...");
     try {
-      const res = await fetch("https://rafikeybot.onrender.com/clinics/", {
+      const res = await fetch("https://rafikey-backend.onrender.com/clinics/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -137,7 +137,7 @@ const ClinicsPage: React.FC = () => {
     setEditLoading(true);
     const toastId = toast.loading("Updating clinic...");
     try {
-      const res = await fetch(`https://rafikeybot.onrender.com/clinics/clinics/${editForm.id}`, {
+      const res = await fetch(`https://rafikey-backend.onrender.com/clinics/clinics/${editForm.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
