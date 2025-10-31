@@ -19,6 +19,42 @@ interface MetricCardProps {
   iconColor: string;
 }
 
+interface TooltipProps {
+  text: string;
+  children: React.ReactNode;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
+  const [visible, setVisible] = useState(false);
+
+  // Only show tooltip on hover/focus of the card or section, not just the text
+  return (
+    <div
+      className="relative group"
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+      onFocus={() => setVisible(true)}
+      onBlur={() => setVisible(false)}
+      tabIndex={0}
+      style={{ display: "block" }}
+    >
+      {children}
+      <div
+        className={`absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg text-xs font-medium shadow-lg
+          bg-gray-900 text-white whitespace-nowrap pointer-events-none transition-opacity duration-200
+          ${visible ? "opacity-90" : "opacity-0"}
+        `}
+        style={{
+          pointerEvents: "none",
+          transition: "opacity 0.2s",
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+};
+
 interface TableRowProps {
   topic: string;
   tags: string[];
@@ -151,48 +187,51 @@ const Dashboard: React.FC = () => {
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
   };
-  const MetricCard: React.FC<MetricCardProps> = ({
+  const MetricCard: React.FC<MetricCardProps & { tooltip: string }> = ({
     title,
     value,
     trend,
     icon,
     iconColor,
+    tooltip,
   }) => (
-    <div
-      className={`backdrop-blur-md rounded-2xl p-6 transition-all duration-300 hover:scale-105 ${
-        isDarkMode
-          ? "bg-gray-800/50 border border-gray-700/50 hover:bg-gray-800/70"
-          : "bg-white/80 border border-black/10 hover:bg-white/90 shadow-lg"
-      }`}
-    >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl ${iconColor}`}>{icon}</div>
-      </div>
-      <h3
-        className={`text-sm font-medium mb-2 ${
-          isDarkMode ? "text-gray-300" : "text-gray-600"
-        }`}
-      >
-        {title}
-      </h3>
+    <Tooltip text={tooltip}>
       <div
-        className={`text-3xl font-bold mb-2 ${
-          isDarkMode ? "text-white" : "text-gray-900"
+        className={`backdrop-blur-md rounded-2xl p-6 transition-all duration-300 hover:scale-105 ${
+          isDarkMode
+            ? "bg-gray-800/50 border border-gray-700/50 hover:bg-gray-800/70"
+            : "bg-white/80 border border-black/10 hover:bg-white/90 shadow-lg"
         }`}
       >
-        {value}
-      </div>
-      <div className="flex items-center">
-        <TrendingUp
-          className={`w-4 h-4 mr-1 ${
-            trend === "up" ? "text-green-400" : "text-red-400"
+        <div className="flex items-start justify-between mb-4">
+          <div className={`p-3 rounded-xl ${iconColor}`}>{icon}</div>
+        </div>
+        <h3
+          className={`text-sm font-medium mb-2 ${
+            isDarkMode ? "text-gray-300" : "text-gray-600"
           }`}
-        />
-        {/* <span className={`text-sm ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-          {change}
-        </span> */}
+        >
+          {title}
+        </h3>
+        <div
+          className={`text-3xl font-bold mb-2 ${
+            isDarkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
+          {value}
+        </div>
+        <div className="flex items-center">
+          <TrendingUp
+            className={`w-4 h-4 mr-1 ${
+              trend === "up" ? "text-green-400" : "text-red-400"
+            }`}
+          />
+          {/* <span className={`text-sm ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+            {change}
+          </span> */}
+        </div>
       </div>
-    </div>
+    </Tooltip>
   );
 
   const TableRow: React.FC<TableRowProps> = ({
@@ -201,82 +240,86 @@ const Dashboard: React.FC = () => {
     confidence,
     confidenceColor,
   }) => (
-    <tr
-      className={`border-b transition-colors duration-200 hover:bg-opacity-50 ${
-        isDarkMode
-          ? "border-gray-700/50 hover:bg-gray-700/20"
-          : "border-gray-200 hover:bg-gray-50"
-      }`}
-    >
-      <td className="py-4">
-        <div>
+    <Tooltip text={`Topic: ${topic}\nTags: ${tags.join(", ")}\nConfidence: ${confidence}%`}>
+      <tr
+        className={`border-b transition-colors duration-200 hover:bg-opacity-50 ${
+          isDarkMode
+            ? "border-gray-700/50 hover:bg-gray-700/20"
+            : "border-gray-200 hover:bg-gray-50"
+        }`}
+      >
+        <td className="py-4">
+          <div>
+            <div
+              className={`text-sm font-medium mb-2 ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {topic}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    isDarkMode
+                      ? "bg-gray-700/50 text-gray-300"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </td>
+        <td className="py-4 text-right">
           <div
-            className={`text-sm font-medium mb-2 ${
-              isDarkMode ? "text-white" : "text-gray-900"
-            }`}
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${confidenceColor}`}
           >
-            {topic}
+            {confidence}%
           </div>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, index) => (
-              <span
-                key={index}
-                className={`px-2 py-1 text-xs rounded-full ${
-                  isDarkMode
-                    ? "bg-gray-700/50 text-gray-300"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      </td>
-      <td className="py-4 text-right">
-        <div
-          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${confidenceColor}`}
-        >
-          {confidence}%
-        </div>
-      </td>
-    </tr>
+        </td>
+      </tr>
+    </Tooltip>
   );
 
   const AlertItem: React.FC<AlertItemProps> = ({ type, text, icon }) => (
-    <div
-      className={`flex items-start space-x-3 p-4 rounded-xl transition-all duration-200 hover:scale-[1.02] ${
-        isDarkMode
-          ? "bg-gray-800/30 hover:bg-gray-800/50"
-          : "bg-gray-50 hover:bg-gray-100"
-      }`}
-    >
+    <Tooltip text={type === "clinic" ? "Clinic Alert: " + text : "Article Alert: " + text}>
       <div
-        className={`p-2 rounded-lg ${
-          type === "clinic" ? "bg-pink-500/20" : "bg-blue-500/20"
+        className={`flex items-start space-x-3 p-4 rounded-xl transition-all duration-200 hover:scale-[1.02] ${
+          isDarkMode
+            ? "bg-gray-800/30 hover:bg-gray-800/50"
+            : "bg-gray-50 hover:bg-gray-100"
         }`}
       >
-        {icon}
-      </div>
-      <div className="flex-1">
-        <p
-          className={`text-sm ${
-            isDarkMode ? "text-gray-300" : "text-gray-600"
+        <div
+          className={`p-2 rounded-lg ${
+            type === "clinic" ? "bg-pink-500/20" : "bg-blue-500/20"
           }`}
         >
-          {text}
-        </p>
+          {icon}
+        </div>
+        <div className="flex-1">
+          <p
+            className={`text-sm ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
+            {text}
+          </p>
+        </div>
+        <button
+          className={`text-sm font-medium px-3 py-1 rounded-lg transition-colors ${
+            isDarkMode
+              ? "text-blue-400 hover:bg-blue-400/10"
+              : "text-blue-600 hover:bg-blue-50"
+          }`}
+        >
+          View
+        </button>
       </div>
-      <button
-        className={`text-sm font-medium px-3 py-1 rounded-lg transition-colors ${
-          isDarkMode
-            ? "text-blue-400 hover:bg-blue-400/10"
-            : "text-blue-600 hover:bg-blue-50"
-        }`}
-      >
-        View
-      </button>
-    </div>
+    </Tooltip>
   );
 
   const CircularProgress: React.FC<{
@@ -397,6 +440,7 @@ const Dashboard: React.FC = () => {
                 trend="up"
                 icon={<BarChart3 className="w-6 h-6 text-white" />}
                 iconColor="bg-purple-500"
+                tooltip="Total number of unique conversations with the chatbot."
               />
               <MetricCard
                 title="Average Response Time"
@@ -404,6 +448,7 @@ const Dashboard: React.FC = () => {
                 trend="up"
                 icon={<Clock className="w-6 h-6 text-white" />}
                 iconColor="bg-blue-500"
+                tooltip="Average time taken for the chatbot to respond."
               />
               <MetricCard
                 title="Active Users Today"
@@ -417,6 +462,7 @@ const Dashboard: React.FC = () => {
                 trend="up"
                 icon={<User className="w-6 h-6 text-white" />}
                 iconColor="bg-orange-500"
+                tooltip="Number of users who interacted with the chatbot today."
               />
             </div>
           </div>
@@ -437,7 +483,9 @@ const Dashboard: React.FC = () => {
                       isDarkMode ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    Top Topics
+                    <Tooltip text="These are the most discussed topics today, along with their confidence scores and related tags.">
+                      <span style={{ display: "inline-block", width: "100%" }}>Top Topics</span>
+                    </Tooltip>
                   </h3>
                   {/* <div className="flex flex-col gap-2 sm:flex-row sm:space-x-4">
                     <select className={`w-full sm:w-auto px-3 py-1 rounded-lg text-sm transition-all focus:outline-none ${
@@ -561,7 +609,9 @@ const Dashboard: React.FC = () => {
                   isDarkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                User Sentiment Analysis
+                <Tooltip text="Breakdown of user sentiment (positive, neutral, negative) based on recent conversations.">
+                  <span style={{ display: "inline-block", width: "100%" }}>User Sentiment Analysis</span>
+                </Tooltip>
               </h3>
 
               {/* Prevent chart container from growing */}
@@ -684,7 +734,9 @@ const Dashboard: React.FC = () => {
                     isDarkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  Most Asked Questions
+                  <Tooltip text="Frequently asked questions by users, sorted by how often they are asked.">
+                    <span style={{ display: "inline-block", width: "100%" }}>Most Asked Questions</span>
+                  </Tooltip>
                 </h3>
               </div>
               <QuestionsList isDarkMode={isDarkMode} />
@@ -747,31 +799,33 @@ const QuestionsList: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   return (
     <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-2">
       {questions.map((q, idx) => (
-        <div
-          key={q.question + idx}
-          className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-200 hover:scale-[1.02] ${
-            isDarkMode
-              ? "bg-gray-800/30 hover:bg-gray-800/50"
-              : "bg-gray-50 hover:bg-gray-100"
-          }`}
-        >
-          <div className="flex-1">
-            <p
-              className={`text-sm font-medium ${
-                isDarkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              {q.question}
-            </p>
-            <span
-              className={`text-xs ${
-                isDarkMode ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
-              Frequency: {q.frequency}
-            </span>
+        <Tooltip text={`Question: ${q.question}\nFrequency: ${q.frequency}`}>
+          <div
+            key={q.question + idx}
+            className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-200 hover:scale-[1.02] ${
+              isDarkMode
+                ? "bg-gray-800/30 hover:bg-gray-800/50"
+                : "bg-gray-50 hover:bg-gray-100"
+            }`}
+          >
+            <div className="flex-1">
+              <p
+                className={`text-sm font-medium ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {q.question}
+              </p>
+              <span
+                className={`text-xs ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                Frequency: {q.frequency}
+              </span>
+            </div>
           </div>
-        </div>
+        </Tooltip>
       ))}
     </div>
   );

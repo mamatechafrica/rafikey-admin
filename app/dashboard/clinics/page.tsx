@@ -19,6 +19,8 @@ type Clinic = {
   source_country?: string;
   phone_combined?: string;
   email_combined?: string;
+  opening_hours?: string;
+  cost?: string;
 };
 
 const ClinicsPage: React.FC = () => {
@@ -152,6 +154,8 @@ const ClinicsPage: React.FC = () => {
           source_country: editForm.source_country,
           phone_combined: editForm.phone_combined,
           email_combined: editForm.email_combined,
+          opening_hours: editForm.opening_hours,
+          cost: editForm.cost,
         }),
       });
       if (!res.ok) {
@@ -252,6 +256,14 @@ const ClinicsPage: React.FC = () => {
                   <label className="block text-sm font-semibold mb-1">Phone Combined</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={form.phone_combined || ""} onChange={e => setForm(f => ({ ...f, phone_combined: e.target.value }))} />
                 </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Opening Hours</label>
+                  <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={form.opening_hours || ""} onChange={e => setForm(f => ({ ...f, opening_hours: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Cost</label>
+                  <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={form.cost || ""} onChange={e => setForm(f => ({ ...f, cost: e.target.value }))} />
+                </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold mb-1">Email Combined</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={form.email_combined || ""} onChange={e => setForm(f => ({ ...f, email_combined: e.target.value }))} />
@@ -296,10 +308,14 @@ const ClinicsPage: React.FC = () => {
                   <label className="block text-sm font-semibold mb-1">Website</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={editForm.website || ""} onChange={e => setEditForm(f => f ? { ...f, website: e.target.value } : f)} />
                 </div>
-                {/* <div>
-                  <label className="block text-sm font-semibold mb-1">Source Country</label>
-                  <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={editForm.source_country || ""} onChange={e => setEditForm(f => f ? { ...f, source_country: e.target.value } : f)} />
-                </div> */}
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Opening Hours</label>
+                  <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={editForm.opening_hours || ""} onChange={e => setEditForm(f => f ? { ...f, opening_hours: e.target.value } : f)} />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Cost</label>
+                  <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} value={editForm.cost || ""} onChange={e => setEditForm(f => f ? { ...f, cost: e.target.value } : f)} />
+                </div>
                 <div>
                   <label className="block text-sm font-semibold mb-1">Latitude</label>
                   <input className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-400 ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}`} type="number" step="any" value={editForm.latitude ?? ""} onChange={e => setEditForm(f => f ? { ...f, latitude: e.target.value ? parseFloat(e.target.value) : undefined } : f)} />
@@ -387,6 +403,8 @@ const ClinicsPage: React.FC = () => {
                         <th className="px-4 py-3 font-semibold">Clinic Name</th>
                         <th className="px-4 py-3 font-semibold">Location</th>
                         <th className="px-4 py-3 font-semibold">Phone</th>
+                        <th className="px-4 py-3 font-semibold">Opening Hours</th>
+                        <th className="px-4 py-3 font-semibold">Cost</th>
                         {/* <th className="px-4 py-3 font-semibold">Country</th> */}
                         <th className="px-4 py-3 font-semibold">Actions</th>
                       </tr>
@@ -398,6 +416,8 @@ const ClinicsPage: React.FC = () => {
                           <td className="px-4 py-3 font-medium">{clinic.clinic_name || "N/A"}</td>
                           <td className="px-4 py-3">{clinic.location || "N/A"}</td>
                           <td className="px-4 py-3">{clinic.phone || "N/A"}</td>
+                          <td className="px-4 py-3">{clinic.opening_hours || "N/A"}</td>
+                          <td className="px-4 py-3">{clinic.cost || "N/A"}</td>
                           {/* <td className="px-4 py-3">{clinic.source_country || "N/A"}</td> */}
                           <td className="px-4 py-3">
                             <div className="flex gap-2">
