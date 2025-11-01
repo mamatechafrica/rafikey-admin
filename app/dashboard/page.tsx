@@ -799,9 +799,8 @@ const QuestionsList: React.FC<{ isDarkMode: boolean }> = ({ isDarkMode }) => {
   return (
     <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto pr-2">
       {questions.map((q, idx) => (
-        <Tooltip text={`Question: ${q.question}\nFrequency: ${q.frequency}`}>
+        <Tooltip key={q.question + idx} text={`Question: ${q.question}\nFrequency: ${q.frequency}`}>
           <div
-            key={q.question + idx}
             className={`flex items-start gap-3 p-4 rounded-xl transition-all duration-200 hover:scale-[1.02] ${
               isDarkMode
                 ? "bg-gray-800/30 hover:bg-gray-800/50"
