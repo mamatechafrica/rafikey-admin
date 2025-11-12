@@ -38,12 +38,19 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-// Utility to decode JWT (without verifying signature)
-function decodeJWT(token: string): any | null {
+/**
+ * Utility to decode JWT (without verifying signature)
+ * Only decodes payload, does not verify signature.
+ */
+interface DecodedJWT {
+  role?: string;
+  [key: string]: unknown;
+}
+function decodeJWT(token: string): DecodedJWT | null {
   try {
     const payload = token.split(".")[1];
     const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decoded);
+    return JSON.parse(decoded) as DecodedJWT;
   } catch {
     return null;
   }

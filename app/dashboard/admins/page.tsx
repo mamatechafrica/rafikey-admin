@@ -23,12 +23,19 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-// Utility to decode JWT (without verifying signature)
-function decodeJWT(token: string): any | null {
+/**
+ * Utility to decode JWT (without verifying signature)
+ * Only decodes payload, does not verify signature.
+ */
+interface DecodedJWT {
+  role?: string;
+  [key: string]: unknown;
+}
+function decodeJWT(token: string): DecodedJWT | null {
   try {
     const payload = token.split(".")[1];
     const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decoded);
+    return JSON.parse(decoded) as DecodedJWT;
   } catch {
     return null;
   }
@@ -251,8 +258,17 @@ const AdminsPage: React.FC = () => {
                                         throw new Error(data.detail || "Failed to delete admin");
                                       }
                                       setAddSuccess("Admin deleted successfully");
-                                    } catch (e: any) {
-                                      setError(e.message || "Failed to delete admin");
+                                    } catch (e: unknown) {
+                                      let message = "Failed to delete admin";
+                                      if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "message" in e &&
+                                        typeof (e as { message?: unknown }).message === "string"
+                                      ) {
+                                        message = (e as { message: string }).message;
+                                      }
+                                      setError(message);
                                     } finally {
                                       setLoading(false);
                                     }
