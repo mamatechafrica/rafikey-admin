@@ -61,8 +61,8 @@ const AdminsPage: React.FC = () => {
     if (t) {
       const decoded = decodeJWT(t);
       // Debug: log the decoded JWT and role
-      // console.log("Decoded JWT:", decoded);
-      // console.log("Extracted role from JWT:", decoded?.role);
+      console.log("Decoded JWT:", decoded);
+      console.log("Extracted role from JWT:", decoded?.role);
       setCurrentRole(decoded?.role || null);
     } else {
       setCurrentRole(null);
@@ -70,10 +70,14 @@ const AdminsPage: React.FC = () => {
   }, []);
   // For backward compatibility, treat "admin" as "editor"
   // Normalize role for robust permission checks
-  const normalizedRole = (typeof currentRole === "string" ? currentRole.trim().toLowerCase() : "");
+  let normalizedRole = (typeof currentRole === "string" ? currentRole.trim().toLowerCase() : "");
+  // Remove enum prefix if present (e.g., "AdminRole.super_admin" -> "super_admin")
+  if (normalizedRole.startsWith("adminrole.")) {
+    normalizedRole = normalizedRole.replace("adminrole.", "");
+  }
   const effectiveRole = normalizedRole === "admin" ? "editor" : normalizedRole;
   // Debug: log the normalized and effective role
-  // console.log("Normalized role:", normalizedRole, "Effective role:", effectiveRole);
+  console.log("Normalized role:", normalizedRole, "Effective role:", effectiveRole);
 
   // Fetch admins with token
   useEffect(() => {
@@ -172,7 +176,7 @@ const AdminsPage: React.FC = () => {
         <main className="p-8">
           <h1 className="text-2xl font-bold mb-6">Admins</h1>
           {/* Permission checks for editor/super_admin */}
-          {!["super_admin", "editor"].includes(effectiveRole) ? (
+          {!["super_admin", "editor", "viewer"].includes(effectiveRole) ? (
             <div className="text-red-500 font-semibold">
               You do not have permission to view or manage admins.
             </div>
@@ -229,7 +233,7 @@ const AdminsPage: React.FC = () => {
                             <td className={`px-6 py-3 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{new Date(admin.created_at).toLocaleString()}</td>
                             <td className={`px-6 py-3 ${isDarkMode ? "text-purple-200" : "text-purple-700"}`}>{admin.role}</td>
                             <td className="px-6 py-3">
-                              {effectiveRole === "super_admin" && admin.role !== "super_admin" && (
+                              {effectiveRole === "super_admin" && admin.role !== "super_admin" ? (
                                 <button
                                   onClick={async () => {
                                     if (!window.confirm(`Delete admin "${admin.username}"?`)) return;
@@ -257,7 +261,7 @@ const AdminsPage: React.FC = () => {
                                 >
                                   Delete
                                 </button>
-                              )}
+                              ) : null}
                             </td>
                           </tr>
                         ))}

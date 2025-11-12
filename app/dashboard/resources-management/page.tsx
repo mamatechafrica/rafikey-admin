@@ -37,6 +37,7 @@ const ResourceManagement: React.FC = () => {
       // Normalize role for robust permission checks
       let r = decoded?.role;
       if (typeof r === "string") r = r.trim().toLowerCase();
+      if (r && r.startsWith("adminrole.")) r = r.replace("adminrole.", "");
       if (r === "admin") r = "editor";
       setRole(r || null);
     } else {
@@ -232,54 +233,56 @@ const ResourceManagement: React.FC = () => {
                     : "bg-white/90 border-black/10"
                 }`}
               >
-                <label
-                  htmlFor="pdf-upload"
-                  className={`flex flex-col items-center justify-center w-full h-48 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 outline-none ${
-                    dragActive
-                      ? isDarkMode
-                        ? "border-purple-500 bg-purple-900/20 scale-105"
-                        : "border-purple-500 bg-purple-100 scale-105"
-                      : isDarkMode
-                      ? "border-gray-600 bg-gray-700/30 hover:bg-gray-700/50"
-                      : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                  }`}
-                  tabIndex={0}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onClick={() => inputRef.current?.focus()}
-                >
-                  <Upload
-                    className={`w-12 h-12 mb-2 transition-transform duration-300 ${
+                {(role === "super_admin" || role === "editor") && (
+                  <label
+                    htmlFor="pdf-upload"
+                    className={`flex flex-col items-center justify-center w-full h-48 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 outline-none ${
                       dragActive
-                        ? "scale-125 text-purple-500"
+                        ? isDarkMode
+                          ? "border-purple-500 bg-purple-900/20 scale-105"
+                          : "border-purple-500 bg-purple-100 scale-105"
                         : isDarkMode
-                        ? "text-gray-400"
-                        : "text-gray-500"
+                        ? "border-gray-600 bg-gray-700/30 hover:bg-gray-700/50"
+                        : "border-gray-300 bg-gray-50 hover:bg-gray-100"
                     }`}
-                  />
-                  <span
-                    className={`text-base font-medium transition-colors ${
-                      dragActive
-                        ? "text-purple-500"
-                        : isDarkMode
-                        ? "text-gray-300"
-                        : "text-gray-700"
-                    }`}
+                    tabIndex={0}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onClick={() => inputRef.current?.focus()}
                   >
-                    {dragActive
-                      ? "Drop your PDF here"
-                      : "Drag & drop or click to select a PDF"}
-                  </span>
-                  <input
-                    id="pdf-upload"
-                    ref={inputRef}
-                    type="file"
-                    accept="application/pdf"
-                    className="hidden"
-                    onChange={handlePdfChange}
-                  />
-                </label>
+                    <Upload
+                      className={`w-12 h-12 mb-2 transition-transform duration-300 ${
+                        dragActive
+                          ? "scale-125 text-purple-500"
+                          : isDarkMode
+                          ? "text-gray-400"
+                          : "text-gray-500"
+                      }`}
+                    />
+                    <span
+                      className={`text-base font-medium transition-colors ${
+                        dragActive
+                          ? "text-purple-500"
+                          : isDarkMode
+                          ? "text-gray-300"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      {dragActive
+                        ? "Drop your PDF here"
+                        : "Drag & drop or click to select a PDF"}
+                    </span>
+                    <input
+                      id="pdf-upload"
+                      ref={inputRef}
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      onChange={handlePdfChange}
+                    />
+                  </label>
+                )}
 
                 {/* 📦 Upload Info */}
                 <div className="mt-4 flex flex-col items-center">
@@ -389,37 +392,21 @@ const ResourceManagement: React.FC = () => {
                 </div>
 
                 {/* 📤 Upload button */}
-                <div className="flex flex-col items-center mt-6">
-                  <button
-                    onClick={handlePdfUpload}
-                    disabled={
-                      !pdfFile ||
-                      uploading ||
-                      !(role === "super_admin" || role === "editor")
-                    }
-                    className={`px-6 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                      uploading || !(role === "super_admin" || role === "editor")
-                        ? "bg-gray-500 cursor-not-allowed"
-                        : "bg-purple-600 hover:bg-purple-700 text-white"
-                    }`}
-                    title={
-                      !(role === "super_admin" || role === "editor")
-                        ? "Only super_admin or editor can upload documents"
-                        : undefined
-                    }
-                  >
-                    {uploading
-                      ? "Uploading..."
-                      : !(role === "super_admin" || role === "editor")
-                      ? "Upload PDF (No Permission)"
-                      : "Upload PDF"}
-                  </button>
-                  {!(role === "super_admin" || role === "editor") && (
-                    <span className="text-xs text-red-500 mt-2">
-                      Only super_admin or editor can upload documents.
-                    </span>
-                  )}
-                </div>
+                {(role === "super_admin" || role === "editor") && (
+                  <div className="flex flex-col items-center mt-6">
+                    <button
+                      onClick={handlePdfUpload}
+                      disabled={!pdfFile || uploading}
+                      className={`px-6 py-2 rounded-xl font-semibold transition-all duration-300 ${
+                        uploading
+                          ? "bg-gray-500 cursor-not-allowed"
+                          : "bg-purple-600 hover:bg-purple-700 text-white"
+                      }`}
+                    >
+                      {uploading ? "Uploading..." : "Upload PDF"}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}

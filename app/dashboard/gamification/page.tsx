@@ -30,9 +30,44 @@ type QuizSummary = {
   description: string;
 };
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()!.split(";").shift() || null;
+  return null;
+}
+
+// Utility to decode JWT (without verifying signature)
+function decodeJWT(token: string): any | null {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
 const GamificationQuizAdmin: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+
+  // On mount, read token and decode role
+  React.useEffect(() => {
+    const t = getCookie("admin_token");
+    if (t) {
+      const decoded = decodeJWT(t);
+      let r = decoded?.role;
+      if (typeof r === "string") r = r.trim().toLowerCase();
+      if (r && r.startsWith("adminrole.")) r = r.replace("adminrole.", "");
+      if (r === "admin") r = "editor";
+      setRole(r || null);
+    } else {
+      setRole(null);
+    }
+  }, []);
 
   // Quiz creation state
   const [quizTitle, setQuizTitle] = useState("");
@@ -278,7 +313,6 @@ const GamificationQuizAdmin: React.FC = () => {
     setLoadingQuestions(true);
     setQuestionsError(null);
     try {
-      // Assuming endpoint: /gamification/quizzes/{quiz_id}/questions returns all questions for a quiz
       const res = await fetch(`https://rafikey-backend.onrender.com/gamification/quizzes/${quiz.id}/questions`);
       if (!res.ok) {
         throw new Error("Failed to fetch questions");
@@ -390,166 +424,174 @@ const GamificationQuizAdmin: React.FC = () => {
           <div className="w-full flex flex-col md:flex-row gap-8 max-w-6xl">
             {/* Quiz Creation Form (Left) */}
             <div className="flex-1">
-              <h2
-                className={`text-xl font-semibold mb-4 ${
-                  isDarkMode ? "text-gray-200" : "text-gray-800"
-                }`}
-              >
-                Create a New Quiz
-              </h2>
-              <form
-                onSubmit={handleSubmit}
-                id="quizForm"
-                autoComplete="off"
-                className={`relative backdrop-blur-md rounded-3xl p-8 h-fit shadow-2xl border transition-all duration-300 ${
-                  isDarkMode
-                    ? "bg-gray-800/60 border-gray-700/50"
-                    : "bg-white/90 border-black/10"
-                }`}
-              >
-                <label className="block mb-4">
-                  <span
-                    className={`font-semibold ${
+              {(role === "super_admin" || role === "editor") ? (
+                <>
+                  <h2
+                    className={`text-xl font-semibold mb-4 ${
                       isDarkMode ? "text-gray-200" : "text-gray-800"
                     }`}
                   >
-                    Quiz Title:
-                  </span>
-                  <input
-                    type="text"
-                    value={quizTitle}
-                    onChange={(e) => setQuizTitle(e.target.value)}
-                    required
-                    className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  />
-                </label>
-                <label className="block mb-4">
-                  <span
-                    className={`font-semibold ${
-                      isDarkMode ? "text-gray-200" : "text-gray-800"
+                    Create a New Quiz
+                  </h2>
+                  <form
+                    onSubmit={handleSubmit}
+                    id="quizForm"
+                    autoComplete="off"
+                    className={`relative backdrop-blur-md rounded-3xl p-8 h-fit shadow-2xl border transition-all duration-300 ${
+                      isDarkMode
+                        ? "bg-gray-800/60 border-gray-700/50"
+                        : "bg-white/90 border-black/10"
                     }`}
                   >
-                    Description:
-                  </span>
-                  <textarea
-                    value={quizDescription}
-                    onChange={(e) => setQuizDescription(e.target.value)}
-                    className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  />
-                </label>
-                <div id="questions">
-                  {questions.map((q, qIdx) => (
-                    <div
-                      className={`mb-6 rounded-xl border ${
-                        isDarkMode
-                          ? "bg-gray-900/60 border-gray-700"
-                          : "bg-gray-50 border-gray-200"
-                      } p-4`}
-                      key={qIdx}
-                    >
-                      <label className="block mb-2 font-medium">
-                        Question {q.order}:
-                        <input
-                          type="text"
-                          value={q.text}
-                          onChange={(e) => updateQuestionText(qIdx, e.target.value)}
-                          required
-                          className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        />
-                      </label>
-                      <div>
-                        {q.options.map((opt, oIdx) => (
-                          <div
-                            className={`flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-2 ml-4 p-3 rounded-lg border ${
-                              isDarkMode
-                                ? "bg-gray-800 border-gray-700"
-                                : "bg-white border-gray-200"
-                            }`}
-                            key={oIdx}
-                          >
-                            <label className="flex-1 font-normal">
-                              Option {oIdx + 1}:
-                              <input
-                                type="text"
-                                value={opt.text}
-                                onChange={(e) =>
-                                  updateOptionText(qIdx, oIdx, e.target.value)
-                                }
-                                required
-                                className="ml-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                              />
-                            </label>
-                            <label className="flex items-center gap-1">
-                              <input
-                                type="checkbox"
-                                checked={opt.is_correct}
-                                onChange={(e) =>
-                                  updateOptionCorrect(qIdx, oIdx, e.target.checked)
-                                }
-                                className="accent-purple-600"
-                              />
-                              <span className="text-sm">Correct</span>
-                            </label>
+                    <label className="block mb-4">
+                      <span
+                        className={`font-semibold ${
+                          isDarkMode ? "text-gray-200" : "text-gray-800"
+                        }`}
+                      >
+                        Quiz Title:
+                      </span>
+                      <input
+                        type="text"
+                        value={quizTitle}
+                        onChange={(e) => setQuizTitle(e.target.value)}
+                        required
+                        className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      />
+                    </label>
+                    <label className="block mb-4">
+                      <span
+                        className={`font-semibold ${
+                          isDarkMode ? "text-gray-200" : "text-gray-800"
+                        }`}
+                      >
+                        Description:
+                      </span>
+                      <textarea
+                        value={quizDescription}
+                        onChange={(e) => setQuizDescription(e.target.value)}
+                        className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      />
+                    </label>
+                    <div id="questions">
+                      {questions.map((q, qIdx) => (
+                        <div
+                          className={`mb-6 rounded-xl border ${
+                            isDarkMode
+                              ? "bg-gray-900/60 border-gray-700"
+                              : "bg-gray-50 border-gray-200"
+                          } p-4`}
+                          key={qIdx}
+                        >
+                          <label className="block mb-2 font-medium">
+                            Question {q.order}:
+                            <input
+                              type="text"
+                              value={q.text}
+                              onChange={(e) => updateQuestionText(qIdx, e.target.value)}
+                              required
+                              className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            />
+                          </label>
+                          <div>
+                            {q.options.map((opt, oIdx) => (
+                              <div
+                                className={`flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-2 ml-4 p-3 rounded-lg border ${
+                                  isDarkMode
+                                    ? "bg-gray-800 border-gray-700"
+                                    : "bg-white border-gray-200"
+                                }`}
+                                key={oIdx}
+                              >
+                                <label className="flex-1 font-normal">
+                                  Option {oIdx + 1}:
+                                  <input
+                                    type="text"
+                                    value={opt.text}
+                                    onChange={(e) =>
+                                      updateOptionText(qIdx, oIdx, e.target.value)
+                                    }
+                                    required
+                                    className="ml-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                  />
+                                </label>
+                                <label className="flex items-center gap-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={opt.is_correct}
+                                    onChange={(e) =>
+                                      updateOptionCorrect(qIdx, oIdx, e.target.checked)
+                                    }
+                                    className="accent-purple-600"
+                                  />
+                                  <span className="text-sm">Correct</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  className="ml-2 px-3 py-1 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+                                  onClick={() => removeOption(qIdx, oIdx)}
+                                >
+                                  Remove Option
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex gap-2 mt-2">
                             <button
                               type="button"
-                              className="ml-2 px-3 py-1 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-                              onClick={() => removeOption(qIdx, oIdx)}
+                              className="px-4 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+                              onClick={() => addOption(qIdx)}
                             >
-                              Remove Option
+                              Add Option
+                            </button>
+                            <button
+                              type="button"
+                              className="px-4 py-1 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+                              onClick={() => removeQuestion(qIdx)}
+                            >
+                              Remove Question
                             </button>
                           </div>
-                        ))}
-                      </div>
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          type="button"
-                          className="px-4 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-                          onClick={() => addOption(qIdx)}
-                        >
-                          Add Option
-                        </button>
-                        <button
-                          type="button"
-                          className="px-4 py-1 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-                          onClick={() => removeQuestion(qIdx)}
-                        >
-                          Remove Question
-                        </button>
-                      </div>
-                      <label className="block mt-3 font-medium">
-                        Feedback:
-                        <textarea
-                          value={q.feedback}
-                          onChange={(e) => updateFeedback(qIdx, e.target.value)}
-                          className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        />
-                      </label>
+                          <label className="block mt-3 font-medium">
+                            Feedback:
+                            <textarea
+                              value={q.feedback}
+                              onChange={(e) => updateFeedback(qIdx, e.target.value)}
+                              className="mt-1 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            />
+                          </label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      className="mb-6 px-6 py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 hover:shadow-2xl transition"
+                      onClick={addQuestion}
+                    >
+                      Add Question
+                    </button>
+                    <br />
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className={`relative mt-2 px-6 py-3 rounded-xl font-semibold text-lg flex items-center justify-center transition-all duration-200
+                        ${
+                          submitting
+                            ? "bg-gray-400 text-white cursor-not-allowed"
+                            : "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 hover:shadow-2xl"
+                        }
+                      `}
+                      style={{ minWidth: 140 }}
+                    >
+                      {submitting ? "Submitting..." : "Submit Quiz"}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="text-center text-red-500 font-semibold mt-8">
+                  Only super_admin or editor can create new quizzes.
                 </div>
-                <button
-                  type="button"
-                  className="mb-6 px-6 py-2 rounded-xl font-semibold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 hover:shadow-2xl transition"
-                  onClick={addQuestion}
-                >
-                  Add Question
-                </button>
-                <br />
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className={`relative mt-2 px-6 py-3 rounded-xl font-semibold text-lg flex items-center justify-center transition-all duration-200
-                    ${
-                      submitting
-                        ? "bg-gray-400 text-white cursor-not-allowed"
-                        : "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:scale-105 hover:shadow-2xl"
-                    }
-                  `}
-                  style={{ minWidth: 140 }}
-                >
-                  {submitting ? "Submitting..." : "Submit Quiz"}
-                </button>
-              </form>
+              )}
             </div>
             {/* Quiz List (Right) */}
             <div className="flex-1">
@@ -577,10 +619,10 @@ const GamificationQuizAdmin: React.FC = () => {
                   <table className="w-full text-left">
                     <thead>
                       <tr>
-                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 text-gray-800 ">ID</th>
-                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-200">Title</th>
-                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-200">Description</th>
-                        <th className="px-4 py-2 font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-200">Actions</th>
+                        <th className={`px-4 py-2 font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>ID</th>
+                        <th className={`px-4 py-2 font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Title</th>
+                        <th className={`px-4 py-2 font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Description</th>
+                        <th className={`px-4 py-2 font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -593,21 +635,23 @@ const GamificationQuizAdmin: React.FC = () => {
                               : "border-gray-200"
                           }`}
                         >
-                          <td className="px-4 py-2 cursor-pointer text-gray-800 dark:text-gray-200" onClick={() => openQuizModal(quiz)}>{quiz.id}</td>
-                          <td className="px-4 py-2 cursor-pointer text-gray-800 dark:text-gray-200" onClick={() => openQuizModal(quiz)}>{quiz.title}</td>
-                          <td className="px-4 py-2 cursor-pointer text-gray-800 dark:text-gray-200" onClick={() => openQuizModal(quiz)}>{quiz.description}</td>
+                          <td className={`px-4 py-2 cursor-pointer ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`} onClick={() => openQuizModal(quiz)}>{quiz.id}</td>
+                          <td className={`px-4 py-2 cursor-pointer ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`} onClick={() => openQuizModal(quiz)}>{quiz.title}</td>
+                          <td className={`px-4 py-2 cursor-pointer ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`} onClick={() => openQuizModal(quiz)}>{quiz.description}</td>
                           <td className="px-4 py-2">
-                            <button
-                              className={`px-4 py-1 rounded-lg font-semibold text-white transition ${
-                                deletingQuizId === quiz.id
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-red-600 hover:bg-red-700"
-                              }`}
-                              onClick={() => setQuizToDelete(quiz)}
-                              disabled={deletingQuizId === quiz.id}
-                            >
-                              {deletingQuizId === quiz.id ? "Deleting..." : "Delete"}
-                            </button>
+                            {(role === "super_admin" || role === "editor") && (
+                             <button
+                               className={`px-4 py-1 rounded-lg font-semibold text-white transition ${
+                                 deletingQuizId === quiz.id
+                                   ? "bg-gray-400 cursor-not-allowed"
+                                   : "bg-red-600 hover:bg-red-700"
+                               }`}
+                               onClick={() => setQuizToDelete(quiz)}
+                               disabled={deletingQuizId === quiz.id}
+                             >
+                               {deletingQuizId === quiz.id ? "Deleting..." : "Delete"}
+                             </button>
+                            )}
                           </td>
                         </tr>
                       ))}
