@@ -5,9 +5,44 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { Toaster, toast } from "react-hot-toast";
 
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()!.split(";").shift() || null;
+  return null;
+}
+
+// Utility to decode JWT (without verifying signature)
+function decodeJWT(token: string): any | null {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
 const ResourceManagement: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+
+  // On mount, read token and decode role
+  React.useEffect(() => {
+    const t = getCookie("admin_token");
+    if (t) {
+      const decoded = decodeJWT(t);
+      // Normalize role for robust permission checks
+      let r = decoded?.role;
+      if (typeof r === "string") r = r.trim().toLowerCase();
+      if (r === "admin") r = "editor";
+      setRole(r || null);
+    } else {
+      setRole(null);
+    }
+  }, []);
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -164,206 +199,230 @@ const ResourceManagement: React.FC = () => {
             PDF Upload
           </h1>
 
-          <div className="w-full max-w-lg mx-auto">
-            {/* 📝 Instructions */}
-            <div
-              className={`mb-8 text-center transition-colors ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              <p className="text-base sm:text-lg font-medium">
-                Upload a PDF document to process and store it in the system.
-              </p>
-              <p className="text-sm mt-2">
-                <span className="font-semibold">Instructions:</span> Drag and
-                drop your PDF file below, or click the area to select a file
-                from your device.
-                <br />
-                <span className="font-semibold">Requirements:</span> PDF format
-                only, maximum size 10MB.
-              </p>
+          {role !== "super_admin" && role !== "editor" ? (
+            <div className="text-red-500 font-semibold text-center mt-8">
+              You do not have permission to upload documents.
             </div>
-
-            {/* 📤 Upload Section */}
-            <div
-              className={`relative backdrop-blur-md rounded-3xl p-10 shadow-2xl border transition-all duration-300 ${
-                isDarkMode
-                  ? "bg-gray-800/60 border-gray-700/50"
-                  : "bg-white/90 border-black/10"
-              }`}
-            >
-              <label
-                htmlFor="pdf-upload"
-                className={`flex flex-col items-center justify-center w-full h-48 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 outline-none ${
-                  dragActive
-                    ? isDarkMode
-                      ? "border-purple-500 bg-purple-900/20 scale-105"
-                      : "border-purple-500 bg-purple-100 scale-105"
-                    : isDarkMode
-                    ? "border-gray-600 bg-gray-700/30 hover:bg-gray-700/50"
-                    : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+          ) : (
+            <div className="w-full max-w-lg mx-auto">
+              {/* 📝 Instructions */}
+              <div
+                className={`mb-8 text-center transition-colors ${
+                  isDarkMode ? "text-gray-300" : "text-gray-700"
                 }`}
-                tabIndex={0}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onClick={() => inputRef.current?.focus()}
               >
-                <Upload
-                  className={`w-12 h-12 mb-2 transition-transform duration-300 ${
-                    dragActive
-                      ? "scale-125 text-purple-500"
-                      : isDarkMode
-                      ? "text-gray-400"
-                      : "text-gray-500"
-                  }`}
-                />
-                <span
-                  className={`text-base font-medium transition-colors ${
-                    dragActive
-                      ? "text-purple-500"
-                      : isDarkMode
-                      ? "text-gray-300"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {dragActive
-                    ? "Drop your PDF here"
-                    : "Drag & drop or click to select a PDF"}
-                </span>
-                <input
-                  id="pdf-upload"
-                  ref={inputRef}
-                  type="file"
-                  accept="application/pdf"
-                  className="hidden"
-                  onChange={handlePdfChange}
-                />
-              </label>
+                <p className="text-base sm:text-lg font-medium">
+                  Upload a PDF document to process and store it in the system.
+                </p>
+                <p className="text-sm mt-2">
+                  <span className="font-semibold">Instructions:</span> Drag and
+                  drop your PDF file below, or click the area to select a file
+                  from your device.
+                  <br />
+                  <span className="font-semibold">Requirements:</span> PDF format
+                  only, maximum size 10MB.
+                </p>
+              </div>
 
-              {/* 📦 Upload Info */}
-              <div className="mt-4 flex flex-col items-center">
-                {pdfFile && (
-                  <div
-                    className={`mb-2 text-xs px-3 py-1 rounded-full transition-all ${
-                      isDarkMode
-                        ? "bg-gray-700 text-gray-200"
-                        : "bg-gray-200 text-gray-700"
+              {/* 📤 Upload Section */}
+              <div
+                className={`relative backdrop-blur-md rounded-3xl p-10 shadow-2xl border transition-all duration-300 ${
+                  isDarkMode
+                    ? "bg-gray-800/60 border-gray-700/50"
+                    : "bg-white/90 border-black/10"
+                }`}
+              >
+                <label
+                  htmlFor="pdf-upload"
+                  className={`flex flex-col items-center justify-center w-full h-48 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 outline-none ${
+                    dragActive
+                      ? isDarkMode
+                        ? "border-purple-500 bg-purple-900/20 scale-105"
+                        : "border-purple-500 bg-purple-100 scale-105"
+                      : isDarkMode
+                      ? "border-gray-600 bg-gray-700/30 hover:bg-gray-700/50"
+                      : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                  }`}
+                  tabIndex={0}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onClick={() => inputRef.current?.focus()}
+                >
+                  <Upload
+                    className={`w-12 h-12 mb-2 transition-transform duration-300 ${
+                      dragActive
+                        ? "scale-125 text-purple-500"
+                        : isDarkMode
+                        ? "text-gray-400"
+                        : "text-gray-500"
+                    }`}
+                  />
+                  <span
+                    className={`text-base font-medium transition-colors ${
+                      dragActive
+                        ? "text-purple-500"
+                        : isDarkMode
+                        ? "text-gray-300"
+                        : "text-gray-700"
                     }`}
                   >
-                    Selected: {pdfFile.name}
-                  </div>
-                )}
+                    {dragActive
+                      ? "Drop your PDF here"
+                      : "Drag & drop or click to select a PDF"}
+                  </span>
+                  <input
+                    id="pdf-upload"
+                    ref={inputRef}
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={handlePdfChange}
+                  />
+                </label>
 
-                {uploading && (
-                  <div className="w-full flex flex-col items-center mb-2">
-                    <div className="w-64 h-3 bg-gray-300 rounded-full overflow-hidden mb-1">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-200"
-                        style={{ width: `${progress}%` }}
-                      ></div>
+                {/* 📦 Upload Info */}
+                <div className="mt-4 flex flex-col items-center">
+                  {pdfFile && (
+                    <div
+                      className={`mb-2 text-xs px-3 py-1 rounded-full transition-all ${
+                        isDarkMode
+                          ? "bg-gray-700 text-gray-200"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      Selected: {pdfFile.name}
                     </div>
-                    <span
-                      className={`text-xs font-medium ${
-                        isDarkMode ? "text-gray-200" : "text-gray-700"
-                      }`}
-                    >
-                      {progress}%
-                    </span>
-                  </div>
-                )}
+                  )}
 
-                {/* 🧠 Processing feedback */}
-                {uploading && progress === 100 && (
-                  <div className="w-full flex flex-col items-center mb-2 animate-fade-in">
-                    <span
-                      className={`text-sm font-semibold ${
-                        isDarkMode ? "text-purple-300" : "text-purple-700"
-                      }`}
-                    >
-                      Processing & Training in Progress...
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      This usually takes ~2–3 minutes.
-                    </span>
-                  </div>
-                )}
+                  {uploading && (
+                    <div className="w-full flex flex-col items-center mb-2">
+                      <div className="w-64 h-3 bg-gray-300 rounded-full overflow-hidden mb-1">
+                        <div
+                          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-200"
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      <span
+                        className={`text-xs font-medium ${
+                          isDarkMode ? "text-gray-200" : "text-gray-700"
+                        }`}
+                      >
+                        {progress}%
+                      </span>
+                    </div>
+                  )}
 
-                {/* ✅ Confirmation */}
-                {!uploading && progress === 100 && (
-                  <div className="w-full flex flex-col items-center mb-2 animate-fade-in">
-                    <span
-                      className={`text-sm font-semibold ${
-                        isDarkMode ? "text-green-300" : "text-green-700"
-                      }`}
-                    >
-                      Content successfully uploaded. Bot has been retrained with
-                      ‘Types of HIV tests and their effectiveness’.
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      Version: v2.0 &nbsp;|&nbsp; Uploaded:{" "}
-                      {new Date().toLocaleString()}
-                    </span>
-                  </div>
-                )}
+                  {/* 🧠 Processing feedback */}
+                  {uploading && progress === 100 && (
+                    <div className="w-full flex flex-col items-center mb-2 animate-fade-in">
+                      <span
+                        className={`text-sm font-semibold ${
+                          isDarkMode ? "text-purple-300" : "text-purple-700"
+                        }`}
+                      >
+                        Processing & Training in Progress...
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        This usually takes ~2–3 minutes.
+                      </span>
+                    </div>
+                  )}
 
-                {/* 🕓 Upload History */}
-                {!uploading && (
-                  <div className="w-full mt-4">
-                    <h2
-                      className={`text-base font-semibold mb-2 ${
-                        isDarkMode ? "text-gray-200" : "text-gray-800"
-                      }`}
-                    >
-                      Upload History
-                    </h2>
-                    <ul className="text-xs">
-                      <li>
-                        <span className="font-bold">2025-10-07 09:00</span> —
-                        Types of HIV tests and their effectiveness
-                        <span className="ml-2 px-2 py-0.5 rounded bg-green-200 text-green-800 text-[10px]">
-                          Active
-                        </span>
-                        <button className="ml-2 text-blue-500 underline text-[10px]">
-                          Rollback
-                        </button>
-                      </li>
-                      <li>
-                        <span className="font-bold">2025-09-30 14:30</span> —
-                        HIV/AIDS Awareness Brochure
-                        <span className="ml-2 px-2 py-0.5 rounded bg-gray-200 text-gray-800 text-[10px]">
-                          Archived
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
+                  {/* ✅ Confirmation */}
+                  {!uploading && progress === 100 && (
+                    <div className="w-full flex flex-col items-center mb-2 animate-fade-in">
+                      <span
+                        className={`text-sm font-semibold ${
+                          isDarkMode ? "text-green-300" : "text-green-700"
+                        }`}
+                      >
+                        Content successfully uploaded. Bot has been retrained with
+                        ‘Types of HIV tests and their effectiveness’.
+                      </span>
+                      <span
+                        className={`text-xs ${
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        Version: v2.0 &nbsp;|&nbsp; Uploaded:{" "}
+                        {new Date().toLocaleString()}
+                      </span>
+                    </div>
+                  )}
 
-              {/* 📤 Upload button */}
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={handlePdfUpload}
-                  disabled={!pdfFile || uploading}
-                  className={`px-6 py-2 rounded-xl font-semibold transition-all duration-300 ${
-                    uploading
-                      ? "bg-gray-500 cursor-not-allowed"
-                      : "bg-purple-600 hover:bg-purple-700 text-white"
-                  }`}
-                >
-                  {uploading ? "Uploading..." : "Upload PDF"}
-                </button>
+                  {/* 🕓 Upload History */}
+                  {!uploading && (
+                    <div className="w-full mt-4">
+                      <h2
+                        className={`text-base font-semibold mb-2 ${
+                          isDarkMode ? "text-gray-200" : "text-gray-800"
+                        }`}
+                      >
+                        Upload History
+                      </h2>
+                      <ul className="text-xs">
+                        <li>
+                          <span className="font-bold">2025-10-07 09:00</span> —
+                          Types of HIV tests and their effectiveness
+                          <span className="ml-2 px-2 py-0.5 rounded bg-green-200 text-green-800 text-[10px]">
+                            Active
+                          </span>
+                          <button className="ml-2 text-blue-500 underline text-[10px]">
+                            Rollback
+                          </button>
+                        </li>
+                        <li>
+                          <span className="font-bold">2025-09-30 14:30</span> —
+                          HIV/AIDS Awareness Brochure
+                          <span className="ml-2 px-2 py-0.5 rounded bg-gray-200 text-gray-800 text-[10px]">
+                            Archived
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* 📤 Upload button */}
+                <div className="flex flex-col items-center mt-6">
+                  <button
+                    onClick={handlePdfUpload}
+                    disabled={
+                      !pdfFile ||
+                      uploading ||
+                      !(role === "super_admin" || role === "editor")
+                    }
+                    className={`px-6 py-2 rounded-xl font-semibold transition-all duration-300 ${
+                      uploading || !(role === "super_admin" || role === "editor")
+                        ? "bg-gray-500 cursor-not-allowed"
+                        : "bg-purple-600 hover:bg-purple-700 text-white"
+                    }`}
+                    title={
+                      !(role === "super_admin" || role === "editor")
+                        ? "Only super_admin or editor can upload documents"
+                        : undefined
+                    }
+                  >
+                    {uploading
+                      ? "Uploading..."
+                      : !(role === "super_admin" || role === "editor")
+                      ? "Upload PDF (No Permission)"
+                      : "Upload PDF"}
+                  </button>
+                  {!(role === "super_admin" || role === "editor") && (
+                    <span className="text-xs text-red-500 mt-2">
+                      Only super_admin or editor can upload documents.
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* 🔄 Animation */}
           <style jsx global>{`
