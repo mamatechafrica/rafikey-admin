@@ -98,6 +98,11 @@ const AnalysisPage: React.FC = () => {
   const [demographicReachLoading, setDemographicReachLoading] = useState(true);
   const [demographicReachError, setDemographicReachError] = useState<string | null>(null);
 
+  // Gender Analysis State
+  const [genderAnalysis, setGenderAnalysis] = useState<{ total_users?: number; gender_breakdown?: Record<string, number> } | null>(null);
+  const [genderAnalysisLoading, setGenderAnalysisLoading] = useState(true);
+  const [genderAnalysisError, setGenderAnalysisError] = useState<string | null>(null);
+
   const toggleSidebar = () => setIsSidebarCollapsed((prev) => !prev);
 
   // Fetch User Satisfaction Analysis
@@ -211,6 +216,19 @@ const AnalysisPage: React.FC = () => {
       .then(data => setDemographicReach(data))
       .catch(() => setDemographicReachError("Failed to fetch Demographic Reach"))
       .finally(() => setDemographicReachLoading(false));
+  }, []);
+
+  // Fetch Gender Analysis
+  React.useEffect(() => {
+    setGenderAnalysisLoading(true);
+    fetch("https://rafikey-backend.onrender.com/metrics/gender_analysis")
+      .then(res => {
+        if (!res.ok) throw new Error("Network error");
+        return res.json();
+      })
+      .then(data => setGenderAnalysis(data))
+      .catch(() => setGenderAnalysisError("Failed to fetch Gender Analysis"))
+      .finally(() => setGenderAnalysisLoading(false));
   }, []);
 
   // Helper to get backend value for a metric
@@ -330,21 +348,45 @@ const AnalysisPage: React.FC = () => {
         }
         return "N/A";
       case "Demographic Reach":
-        if (demographicReachLoading) return "Loading...";
-        if (demographicReachError) return demographicReachError;
+        if (demographicReachLoading || genderAnalysisLoading) return "Loading...";
+        if (demographicReachError || genderAnalysisError) return demographicReachError || genderAnalysisError;
+        // Prefer genderAnalysis if available, fallback to demographicReach
+        const genderData = genderAnalysis && genderAnalysis.total_users !== undefined
+          ? genderAnalysis
+          : demographicReach;
         if (
-          demographicReach?.total_users !== undefined &&
-          demographicReach?.total_users !== null
+          genderData?.total_users !== undefined &&
+          genderData?.total_users !== null
         ) {
-          // Show total users and a short summary of gender breakdown
-          const total = demographicReach.total_users;
-          const genders = demographicReach.gender_breakdown
-            ? Object.entries(demographicReach.gender_breakdown)
+          const total = genderData.total_users;
+          const genders = genderData.gender_breakdown
+            ? Object.entries(genderData.gender_breakdown)
                 .filter(([k]) => k && k !== "null")
                 .map(([k, v]) => `${v} ${k}`)
                 .join(", ")
             : "";
-          return `${total} users${genders ? ", " + genders : ""}`;
+          return (
+            <div>
+              <div>
+                <span className="font-semibold">Total Users:</span> {total}
+              </div>
+              <div>
+                <span className="font-semibold">Gender Breakdown:</span>
+                {genderData.gender_breakdown && Object.keys(genderData.gender_breakdown).length > 0 ? (
+                  <ul className="mt-2">
+                    {Object.entries(genderData.gender_breakdown).map(([gender, count]) => (
+                      <li key={gender} className="flex items-center gap-2">
+                        <span className="capitalize">{gender}:</span>
+                        <span className="font-bold">{count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span className="ml-2 text-gray-400">No gender data available</span>
+                )}
+              </div>
+            </div>
+          );
         }
         return "N/A";
       // Add similar cases for other metrics as needed
@@ -475,17 +517,17 @@ const AnalysisPage: React.FC = () => {
     //   icon: <Target className="w-5 h-5" />,
     //   color: 'bg-emerald-500'
     // },
-    // {
-    //   id: 12,
-    //   category: 'Acquisition',
-    //   metric: 'Demographic Reach',
-    //   definition: 'The percentage of users from different age groups, regions, and socioeconomic backgrounds, especially underserved communities.',
-    //   baseline: 'TBD',
-    //   target: '50%+ rural users',
-    //   rationale: 'Ensures inclusivity and accessibility for marginalized populations.',
-    //   icon: <Users className="w-5 h-5" />,
-    //   color: 'bg-violet-500'
-    // },
+    {
+      id: 12,
+      category: 'Acquisition',
+      metric: 'Demographic Reach',
+      definition: 'The percentage of users from different age groups, regions, and socioeconomic backgrounds, especially underserved communities.',
+      baseline: 'TBD',
+      target: '50%+ rural users',
+      rationale: 'Ensures inclusivity and accessibility for marginalized populations.',
+      icon: <Users className="w-5 h-5" />,
+      color: 'bg-violet-500'
+    },
     // {
     //   id: 13,
     //   category: 'Activation',
@@ -565,7 +607,7 @@ const AnalysisPage: React.FC = () => {
     // }
   ];
 
-  const categories = ['All', 'Activation', 'Retention', ];
+  const categories = ['All', 'Activation', 'Retention', 'Acquisition'];
 
   const filteredMetrics = metrics.filter(metric => {
     const matchesCategory = selectedCategory === 'All' || metric.category === selectedCategory;
