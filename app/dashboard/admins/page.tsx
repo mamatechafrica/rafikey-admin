@@ -124,7 +124,10 @@ const AdminsPage: React.FC = () => {
     try {
       const res = await fetch("https://rafikey-backend.onrender.com/admin/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           username,
           email,
